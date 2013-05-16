@@ -9,6 +9,26 @@ def queueConf = [
         "processorHandler": "queue.processor"
 ]
 
+container.with {
+//    deployVerticle("groovy-sepia/Worker.groovy",null,1){
+//        println "verticle sepia-groovy deployed"
+//    }
+//    deployVerticle("python-pixelate/Worker.py",1){
+//        println "verticle python-pixelate deployed"
+//    }
+//
+    Map map  = [
+            "original":"/home/hitesh/Projects/vertx/ImageTransformations/images/am2.jpg",
+            "destination":"/home/hitesh/Projects/vertx/ImageTransformations/updatedImages",
+            "updatedName":"hello.jpg"
+    ]
+
+    deployWorkerVerticle("ruby-blur/Worker.rb",null,1){
+        println "verticle ruby-blur deployed"
+        eb.send("image.transform.pixelate",map)
+
+    }
+}
 
 
 def queueItemHandler = { item ->
@@ -18,15 +38,12 @@ def queueItemHandler = { item ->
     item.reply([:])
 }
 
-// Register processor handler on eventbus
+//Register processor handler on eventbus
 eb.registerHandler(queueConf['processorHandler'], queueItemHandler) { message ->
     println "Consumer Registered..."
 };
 
-// Register with queue for messages
+//Register with queue for messages
 eb.send("${queueConf['address']}.register", ["processor": queueConf['processorHandler']]) {
     println "Consumer running...."
 }
-
-
-

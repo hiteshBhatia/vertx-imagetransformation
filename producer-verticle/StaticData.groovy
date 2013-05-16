@@ -1,0 +1,72 @@
+List list = [
+        ["location": "/home/hitesh/Projects/vertx/ImageTransformations/images/ac.jpg", "transformation": "sepia"],
+        ["location": "/home/hitesh/Projects/vertx/ImageTransformations/images/ac.jpg", "transformation": "blur"],
+        ["location": "/home/hitesh/Projects/vertx/ImageTransformations/images/ac.jpg", "transformation": "pixelate"],
+        ["location": "/home/hitesh/Projects/vertx/ImageTransformations/images/am1.jpg", "transformation": "sepia"],
+        ["location": "/home/hitesh/Projects/vertx/ImageTransformations/images/am1.jpg", "transformation": "blur"],
+        ["location": "/home/hitesh/Projects/vertx/ImageTransformations/images/am1.jpg", "transformation": "pixelate"],
+        ["location": "/home/hitesh/Projects/vertx/ImageTransformations/images/am2.jpg", "transformation": "sepia"],
+        ["location": "/home/hitesh/Projects/vertx/ImageTransformations/images/am2.jpg", "transformation": "blur"],
+        ["location": "/home/hitesh/Projects/vertx/ImageTransformations/images/am2.jpg", "transformation": "pixelate"],
+        ["location": "/home/hitesh/Projects/vertx/ImageTransformations/images/bv.png", "transformation": "sepia"],
+        ["location": "/home/hitesh/Projects/vertx/ImageTransformations/images/bv.png", "transformation": "blur"],
+        ["location": "/home/hitesh/Projects/vertx/ImageTransformations/images/bv.png", "transformation": "pixelate"],
+        ["location": "/home/hitesh/Projects/vertx/ImageTransformations/images/colosseum.jpg", "transformation": "sepia"],
+        ["location": "/home/hitesh/Projects/vertx/ImageTransformations/images/colosseum.jpg", "transformation": "blur"],
+        ["location": "/home/hitesh/Projects/vertx/ImageTransformations/images/colosseum.jpg", "transformation": "pixelate"],
+        ["location": "/home/hitesh/Projects/vertx/ImageTransformations/images/dc.jpg", "transformation": "sepia"],
+        ["location": "/home/hitesh/Projects/vertx/remove()ImageTransformations/images/dc.jpg", "transformation": "blur"],
+        ["location": "/home/hitesh/Projects/vertx/ImageTransformations/images/dc.jpg", "transformation": "pixelate"],
+        ["location": "/home/hitesh/Projects/vertx/ImageTransformations/images/Debian.jpg", "transformation": "sepia"],
+        ["location": "/home/hitesh/Projects/vertx/ImageTransformations/images/Debian.jpg", "transformation": "blur"],
+        ["location": "/home/hitesh/Projects/vertx/ImageTransformations/images/Debian.jpg", "transformation": "pixelate"],
+        ["location": "/home/hitesh/Projects/vertx/ImageTransformations/images/et.jpg", "transformation": "sepia"],
+        ["location": "/home/hitesh/Projects/vertx/ImageTransformations/images/et.jpg", "transformation": "blur"],
+        ["location": "/home/hitesh/Projects/vertx/ImageTransformations/images/et.jpg", "transformation": "pixelate"],
+        ["location": "/home/hitesh/Projects/vertx/ImageTransformations/images/fm2.jpg", "transformation": "sepia"],
+        ["location": "/home/hitesh/Projects/vertx/ImageTransformations/images/fm2.jpg", "transformation": "blur"],
+        ["location": "/home/hitesh/Projects/vertx/ImageTransformations/images/fm2.jpg", "transformation": "pixelate"],
+        ["location": "/home/hitesh/Projects/vertx/ImageTransformations/images/fm.jpg", "transformation": "sepia"],
+        ["location": "/home/hitesh/Projects/vertx/ImageTransformations/images/fm.jpg", "transformation": "blur"],
+        ["location": "/home/hitesh/Projects/vertx/ImageTransformations/images/fm.jpg", "transformation": "pixelate"],
+        ["location": "/home/hitesh/Projects/vertx/ImageTransformations/images/got2.jpg", "transformation": "sepia"],
+        ["location": "/home/hitesh/Projects/vertx/ImageTransformations/images/got2.jpg", "transformation": "blur"],
+        ["location": "/home/hitesh/Projects/vertx/ImageTransformations/images/got2.jpg", "transformation": "pixelate"],
+        ["location": "/home/hitesh/Projects/vertx/ImageTransformations/images/got3.jpg", "transformation": "sepia"],
+        ["location": "/home/hitesh/Projects/vertx/ImageTransformations/images/got3.jpg", "transformation": "blur"],
+        ["location": "/home/hitesh/Projects/vertx/ImageTransformations/images/got3.jpg", "transformation": "pixelate"],
+        ["location": "/home/hitesh/Projects/vertx/ImageTransformations/images/got.jpg", "transformation": "sepia"],
+        ["location": "/home/hitesh/Projects/vertx/ImageTransformations/images/got.jpg", "transformation": "blur"],
+        ["location": "/home/hitesh/Projects/vertx/ImageTransformations/images/got.jpg", "transformation": "pixelate"],
+        ["location": "/home/hitesh/Projects/vertx/ImageTransformations/images/mc.jpg", "transformation": "sepia"],
+        ["location": "/home/hitesh/Projects/vertx/ImageTransformations/images/mc.jpg", "transformation": "blur"],
+        ["location": "/home/hitesh/Projects/vertx/ImageTransformations/images/mc.jpg", "transformation": "pixelate"]
+]
+
+// First delete everything
+def eb = vertx.eventBus
+def config = container.config
+def persistorAddress = config.persistor_address
+def address = config.address
+def collection = config.collection
+
+eb.send(persistorAddress, ['action': 'delete', 'collection': collection, 'matcher': [:]])
+
+Long timerID = null
+
+def periodicHandler = { reply ->
+    println "----------------------------"
+    Map obj = list.remove(list.size() - 1)
+    addMapToQueue(obj, eb, address, collection)
+    if (!list.size()) {
+        vertx.cancelTimer(timerID)
+    }
+    println "----------------------------"
+}
+
+timerID = vertx.setPeriodic(1000, periodicHandler)
+
+def addMapToQueue(Map map, def eb, def address, def collection) {
+    println "Sending task ${map} on the queue"
+    eb.send(address, ['action': 'save', 'collection': collection, 'document': map])
+}

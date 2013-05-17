@@ -13,21 +13,21 @@ container.with {
 //    deployVerticle("groovy-sepia/Worker.groovy",null,1){
 //        println "verticle sepia-groovy deployed"
 //    }
-//    deployVerticle("python-pixelate/Worker.py",1){
-//        println "verticle python-pixelate deployed"
-//    }
-//
-    Map map  = [
-            "original":"/home/hitesh/Projects/vertx/ImageTransformations/images/am2.jpg",
-            "destination":"/home/hitesh/Projects/vertx/ImageTransformations/updatedImages",
-            "updatedName":"hello.jpg"
+
+    Map map = [
+            "original": "/home/hitesh/Projects/vertx/ImageTransformations/images/am2.jpg",
+            "destination": "/home/hitesh/Projects/vertx/ImageTransformations/updatedImages",
+            "updatedName": "hello1.jpg"
     ]
 
-    deployWorkerVerticle("ruby-blur/Worker.rb",null,1){
-        println "verticle ruby-blur deployed"
+    deployVerticle("python-pixelate/Worker.py", map, 1) {
+        println "verticle python-pixelate deployed"
         eb.send("image.transform.pixelate",map)
-
     }
+
+//    deployWorkerVerticle("ruby-blur/Worker.rb",null,1){
+//        println "verticle ruby-blur deployed"
+//    }
 }
 
 

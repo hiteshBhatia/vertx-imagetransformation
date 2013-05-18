@@ -1,6 +1,10 @@
 import org.vertx.groovy.core.eventbus.EventBus
 
 EventBus eb = vertx.eventBus
+String webroot = "/home/hitesh/Projects/vertx/ImageTransformations/queue-verticle/web"
+String images = "images"
+String updatedImages = "updatedImages"
+
 
 def queueConf = [
         "address": "vert-x.process.queue",
@@ -10,32 +14,43 @@ def queueConf = [
 ]
 
 container.with {
-//    deployVerticle("groovy-sepia/Worker.groovy",null,1){
-//        println "verticle sepia-groovy deployed"
-//    }
-
-    Map map = [
-            "original": "/home/hitesh/Projects/vertx/ImageTransformations/images/am2.jpg",
-            "destination": "/home/hitesh/Projects/vertx/ImageTransformations/updatedImages",
-            "updatedName": "hello1.jpg"
-    ]
-
-    deployVerticle("python-pixelate/Worker.py", map, 1) {
-        println "verticle python-pixelate deployed"
-        eb.send("image.transform.pixelate",map)
+    deployWorkerVerticle("groovy-sepia/Worker.groovy", null, 1) {
+        println "verticle sepia-groovy deployed"
     }
 
-//    deployWorkerVerticle("ruby-blur/Worker.rb",null,1){
-//        println "verticle ruby-blur deployed"
-//    }
+    deployWorkerVerticle("python-pixelate/Worker.py", null, 1) {
+        println "verticle python-pixelate deployed"
+    }
+
+    deployWorkerVerticle("ruby-blur/Worker.rb", null, 1) {
+        println "verticle ruby-blur deployed"
+    }
 }
 
-
+// Settings for the queue
 def queueItemHandler = { item ->
-    println "---------------------"
-    println item.properties
-    println "---------------------"
+    Map initialMap = item.body.document
+    def finalMap = createTransformationMapFromInputData(initialMap,webroot,images,updatedImages)
+    eb.send("image.transform.${initialMap.transformation}", finalMap)
     item.reply([:])
+}
+
+private Map createTransformationMapFromInputData(Map initialMap,String webroot,String images,String updatedImages) {
+    List nameList = initialMap.name.tokenize(".")
+    String updatedName = "${nameList.first()}-${initialMap.transformation}.${nameList.last()}"
+    String originalPath = "${webroot}/${images}/${initialMap.name}"
+    String destinationPath = "${webroot}/${updatedImages}/${updatedName}"
+
+    [
+            "name": initialMap.name,
+            "webroot": webroot,
+            "images": images,
+            "updatedImages": updatedImages,
+            "updatedName": updatedName,
+            "originalPath": originalPath,
+            "destinationPath": destinationPath
+    ]
+
 }
 
 //Register processor handler on eventbus

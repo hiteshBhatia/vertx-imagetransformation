@@ -39,7 +39,7 @@ container.with {
 def startHttpServer() {
     def server = vertx.createHttpServer()
     def staticAssets = "web"
-    def port = 8181
+    def port = 8080
 
     // Serve the static resources
     server.requestHandler { req ->

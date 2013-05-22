@@ -9,3 +9,9 @@ Map queueConf = [
 container.deployVerticle('StaticData.groovy', queueConf, 1) {
     println "Producer Started..."
 }
+
+
+
+
+
+

@@ -15,7 +15,7 @@ def queueConf = [
 
 container.with {
     deployWorkerVerticle("groovy-sepia/Worker.groovy", null, 1) {
-        println "verticle sepia-groovy deployed"
+        println "verticle groovy-sepia deployed"
     }
 
     deployWorkerVerticle("python-pixelate/Worker.py", null, 1) {

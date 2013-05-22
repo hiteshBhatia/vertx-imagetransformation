@@ -1,9 +1,6 @@
 import org.vertx.groovy.core.eventbus.EventBus
 
 EventBus eb = vertx.eventBus
-String webroot = "/home/hitesh/Projects/vertx/ImageTransformations/queue-verticle/web"
-String images = "images"
-String updatedImages = "updatedImages"
 
 
 def queueConf = [
@@ -30,25 +27,23 @@ container.with {
 // Settings for the queue
 def queueItemHandler = { item ->
     Map initialMap = item.body.document
-    def finalMap = createTransformationMapFromInputData(initialMap,webroot,images,updatedImages)
+    def finalMap = createTransformationMapFromInputData(initialMap)
     eb.send("image.transform.${initialMap.transformation}", finalMap)
     item.reply([:])
 }
 
-private Map createTransformationMapFromInputData(Map initialMap,String webroot,String images,String updatedImages) {
+//private Map createTransformationMapFromInputData(Map initialMap,String webroot,String images,String updatedImages) {
+private Map createTransformationMapFromInputData(Map initialMap){
     List nameList = initialMap.name.tokenize(".")
     String updatedName = "${nameList.first()}-${initialMap.transformation}.${nameList.last()}"
-    String originalPath = "${webroot}/${images}/${initialMap.name}"
-    String destinationPath = "${webroot}/${updatedImages}/${updatedName}"
+    String originalFilePath = "${initialMap.originalPath}/${initialMap.name}"
+    String updatedFilePath = "${initialMap.updatedPath}/${updatedName}"
 
     [
             "name": initialMap.name,
-            "webroot": webroot,
-            "images": images,
-            "updatedImages": updatedImages,
             "updatedName": updatedName,
-            "originalPath": originalPath,
-            "destinationPath": destinationPath
+            "originalFilePath": originalFilePath,
+            "destinationFilePath": updatedFilePath
     ]
 
 }

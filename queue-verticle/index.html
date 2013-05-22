@@ -1,0 +1,54 @@
+<html>
+<head>
+    <title>SockJS</title>
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <script src="http://cdn.sockjs.org/sockjs-0.2.min.js"></script>
+    <script type="text/javascript" src="js/vertxbus.js"></script>
+    <style>
+        #logs {
+            font-family: monospace;
+            font-size: 10pt;
+        }
+    </style>
+</head>
+<body>
+<h1>Updates</h1>
+<script>
+    var eb = new vertx.EventBus("http://localhost:8080/eventbus");
+    eb.onopen = function () {
+        eb.registerHandler("image.processing.completed", function (msg, replyTo) {
+            var logs = document.getElementById('logs')
+
+//            var div = document.createElement('div');
+//            div.className ="well"
+//            logs.appendChild(div);
+
+            var span = document.createElement('span');
+            logs.appendChild(span);
+
+
+
+            var img = document.createElement('img');
+            img.src = "images/"+ msg.name
+            img.style.width = 100;
+            img.style.margin = 20 ;
+            img.className="img-polaroid";
+            span.appendChild(document.createTextNode('Original'));
+            span.appendChild(img);
+
+            var img_up = document.createElement('img');
+            img_up.style.width = 100
+            img_up.style.margin = 20
+            img_up.className="img-polaroid";
+            img_up.src = "updatedImages/"+ msg.updatedName;
+            span.appendChild(document.createTextNode('Updated'));
+            span.appendChild(img_up);
+
+            logs.appendChild(document.createElement('br'));
+            window.scroll(0, document.height);
+        });
+    };
+</script>
+<div id="logs"></div>
+</body>
+</html>

@@ -1,4 +1,4 @@
-Do make sure before running this application, shat StaticData is  mofied to user needs.
+Please remember to modify StaticData.groovy before runnig this
 
 To run this vert.x app, follow steps mentioned below
 1) Run Queue.groovy
@@ -13,4 +13,5 @@ To run this vert.x app, follow steps mentioned below
    Go inside folder producer-verticle and run   
    vertx run Producer.groovy -cluster -cluster-host localhost -cluster-port 25502
 
-4) And checkout put on localhost:8080
+4) And checkout the ouput at http://localhost:8080/
+
